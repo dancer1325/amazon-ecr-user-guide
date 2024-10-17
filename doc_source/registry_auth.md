@@ -1,24 +1,45 @@
 # Private registry authentication<a name="registry_auth"></a>
 
-You can use the AWS Management Console, the AWS CLI, or the AWS SDKs to create and manage private repositories\. You can also use those methods to perform some actions on images, such as listing or deleting them\. These clients use standard AWS authentication methods\. Even though you can use the Amazon ECR API to push and pull images, you're more likely to use the Docker CLI or a language\-specific Docker library\.
-
-The Docker CLI doesn't support native IAM authentication methods\. Additional steps must be taken so that Amazon ECR can authenticate and authorize Docker push and pull requests\.
-
-The registry authentication methods that are detailed in the following sections are available\.
+* goal
+  * registry authentication methods -- next subsections --
+* ways to manage private repositories
+  * AWS Management Console
+  * AWS CLI
+  * AWS SDKs
+  * Amazon ECR API 
+* standard AWS authentication methods
 
 ## Using the Amazon ECR credential helper<a name="registry-auth-credential-helper"></a>
 
-Amazon ECR provides a Docker credential helper which makes it easier to store and use Docker credentials when pushing and pulling images to Amazon ECR\. For installation and configuration steps, see [Amazon ECR Docker Credential Helper](https://github.com/awslabs/amazon-ecr-credential-helper)\.
-
-**Note**  
-The Amazon ECR Docker credential helper doesn't support multi\-factor authentication \(MFA\) currently\.
+* MFA NOT supported
+* allows
+  * making it easier | pushing & pulling images to Amazon ECR
+    * store Docker credentials
+    * use Docker credentials 
+* [Amazon ECR Docker Credential Helper](https://github.com/awslabs/amazon-ecr-credential-helper)
+  * how to 
+    * install
+    * configure
 
 ## Using an authorization token<a name="registry-auth-token"></a>
 
-An authorization token's permission scope matches that of the IAM principal used to retrieve the authentication token\. An authentication token is used to access any Amazon ECR registry that your IAM principal has access to and is valid for 12 hours\. To obtain an authorization token, you must use the [GetAuthorizationToken](https://docs.aws.amazon.com/AmazonECR/latest/APIReference/API_GetAuthorizationToken.html) API operation to retrieve a base64\-encoded authorization token containing the username `AWS` and an encoded password\. The AWS CLI `get-login-password` command simplifies this by retrieving and decoding the authorization token which you can then pipe into a docker login command to authenticate\.
+* authorization token
+  * 's permission scope matches that of the IAM principal used to retrieve the authentication token
+  * lifetime 
+    * 12 hours
+  * uses
+    * access any Amazon ECR registry / your IAM principal has access to
+  * ways to get it
+    * [GetAuthorizationToken](https://docs.aws.amazon.com/AmazonECR/latest/APIReference/API_GetAuthorizationToken.html) API operation
+      * retrieve a base64\-encoded authorization token / contains
+        * username `AWS`
+        * encoded password
+    * `get-login-password` AWS CLI
+      * retrieve and decoding the authorization token
 
 ### To authenticate Docker to an Amazon ECR private registry with the CLI<a name="get-login-password"></a>
 
+* TODO:
 To authenticate Docker to an Amazon ECR registry with get\-login\-password, run the aws ecr get\-login\-password command\. When passing the authentication token to the docker login command, use the value `AWS` for the username and specify the Amazon ECR registry URI you want to authenticate to\. If authenticating to multiple registries, you must repeat the command for each registry\.
 **Important**  
 If you receive an error, install or upgrade to the latest version of the AWS CLI\. For more information, see [Installing the AWS Command Line Interface](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) in the *AWS Command Line Interface User Guide*\.
