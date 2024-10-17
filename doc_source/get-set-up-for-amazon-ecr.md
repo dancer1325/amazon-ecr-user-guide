@@ -22,7 +22,7 @@
   * provide credentials | you access -- via -- 
     * AWS CLI 
       * create access keys / your AWS account
-    * AWS IAM
+    * AWS IAM & AWS Console
       * 👁️recommended 👁
       * requirements
         * == create an IAM user / -- added to an -- IAM group / has administrative permissions
