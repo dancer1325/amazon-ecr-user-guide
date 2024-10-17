@@ -39,16 +39,14 @@
 
 ### To authenticate Docker to an Amazon ECR private registry with the CLI<a name="get-login-password"></a>
 
-* TODO:
-To authenticate Docker to an Amazon ECR registry with get\-login\-password, run the aws ecr get\-login\-password command\. When passing the authentication token to the docker login command, use the value `AWS` for the username and specify the Amazon ECR registry URI you want to authenticate to\. If authenticating to multiple registries, you must repeat the command for each registry\.
-**Important**  
-If you receive an error, install or upgrade to the latest version of the AWS CLI\. For more information, see [Installing the AWS Command Line Interface](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) in the *AWS Command Line Interface User Guide*\.
-+ [get\-login\-password](https://docs.aws.amazon.com/cli/latest/reference/ecr/get-login-password.html) \(AWS CLI\)
-
+* options / -- pass to -- `docker login`
+  * `AWS` -- for the -- username
+  * Amazon ECR registry URI
+* [get-login-password](https://docs.aws.amazon.com/cli/latest/reference/ecr/get-login-password.html) | AWS CLI
   ```
   aws ecr get-login-password --region region | docker login --username AWS --password-stdin aws_account_id.dkr.ecr.region.amazonaws.com
   ```
-+ [Get\-ECRLoginCommand](https://docs.aws.amazon.com/powershell/latest/reference/items/Get-ECRLoginCommand.html) \(AWS Tools for Windows PowerShell\)
+* [Get\-ECRLoginCommand](https://docs.aws.amazon.com/powershell/latest/reference/items/Get-ECRLoginCommand.html) | AWS Tools for Windows PowerShell
 
   ```
   (Get-ECRLoginCommand).Password | docker login --username AWS --password-stdin aws_account_id.dkr.ecr.region.amazonaws.com
@@ -56,31 +54,31 @@ If you receive an error, install or upgrade to the latest version of the AWS CLI
 
 ## Using HTTP API authentication<a name="registry_auth_http"></a>
 
-Amazon ECR supports the [Docker Registry HTTP API](https://docs.docker.com/registry/spec/api/)\. However, because Amazon ECR is a private registry, you must provide an authorization token with every HTTP request\. You can add an HTTP authorization header using the `-H` option for curl and pass the authorization token provided by the get\-authorization\-token AWS CLI command\.
+* [Docker Registry HTTP API](https://docs.docker.com/registry/spec/api/)
+  * -- supported by -- Amazon ECR
+  * requirements
+    * authorization token / EVERY HTTP request
+      * Reason: 🧠Amazon ECR is a private registry 🧠 
+      * _Example1:_ `GetAuthorizationToken`
+      * _Example2:_
 
-**To authenticate with the Amazon ECR HTTP API**
+       ```
+       # retrieve the token & set to an environment variable
+       TOKEN=$(aws ecr get-authorization-token --output text --query 'authorizationData[].authorizationToken')
+      
+       # use the token to make HTTP call to list the image tags | Amazon ECR repository
+       curl -i -H "Authorization: Basic $TOKEN" https://aws_account_id.dkr.ecr.region.amazonaws.com/v2/amazonlinux/tags/list
+       ```
 
-1. Retrieve an authorization token with the AWS CLI and set it to an environment variable\.
+      The output is as follows:
 
-   ```
-   TOKEN=$(aws ecr get-authorization-token --output text --query 'authorizationData[].authorizationToken')
-   ```
-
-1. To authenticate to the API, pass the `$TOKEN` variable to the `-H` option of curl\. For example, the following command lists the image tags in an Amazon ECR repository\. For more information, see the [Docker Registry HTTP API](https://docs.docker.com/registry/spec/api/) reference documentation\.
-
-   ```
-   curl -i -H "Authorization: Basic $TOKEN" https://aws_account_id.dkr.ecr.region.amazonaws.com/v2/amazonlinux/tags/list
-   ```
-
-   The output is as follows:
-
-   ```
-   HTTP/1.1 200 OK
-   Content-Type: text/plain; charset=utf-8
-   Date: Thu, 04 Jan 2018 16:06:59 GMT
-   Docker-Distribution-Api-Version: registry/2.0
-   Content-Length: 50
-   Connection: keep-alive
-   
-   {"name":"amazonlinux","tags":["2017.09","latest"]}
-   ```
+       ```
+       HTTP/1.1 200 OK
+       Content-Type: text/plain; charset=utf-8
+       Date: Thu, 04 Jan 2018 16:06:59 GMT
+       Docker-Distribution-Api-Version: registry/2.0
+       Content-Length: 50
+       Connection: keep-alive
+       
+       {"name":"amazonlinux","tags":["2017.09","latest"]}
+       ```
